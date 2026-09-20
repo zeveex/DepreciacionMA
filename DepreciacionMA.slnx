@@ -1,0 +1,8 @@
+<Solution>
+  <Project Path="AuthService/AuthService.csproj" />
+  <Project Path="EdificiosService/EdificiosService.csproj" />
+  <Project Path="ReportService/ReportService.csproj" />
+  <Project Path="Shared/Shared.csproj" />
+  <Project Path="TecnologiaService/TecnologiaService.csproj" />
+  <Project Path="VehiculosService/VehiculosService.csproj" />
+</Solution>
