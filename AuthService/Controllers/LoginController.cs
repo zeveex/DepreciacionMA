@@ -1,7 +1,7 @@
 using AuthService.DTOs;
 using AuthService.Services;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace AuthService.Controllers
 {
@@ -23,21 +23,32 @@ namespace AuthService.Controllers
         [HttpPost]
         public IActionResult Login(LoginDTO login)
         {
-            bool valido = _authService.ValidarUsuario(login);
+            var usuario = _authService.ValidarUsuario(login);
 
-            if (valido)
+            if (usuario == null)
             {
-                string token = _jwtService.GenerarToken(login.Usuario);
-
-                return Ok(new
-                {
-                    mensaje = "Usuario correcto",
-                    token = token
-                });
+                return Unauthorized("Usuario o contraseña incorrectos");
             }
 
-            return Unauthorized("Usuario o contraseña incorrectos");
+            string token = _jwtService.GenerarToken(
+                usuario.IdUsuario,
+                usuario.NombreUsuario
+            );
+
+            return Ok(new
+            {
+                mensaje = "Usuario correcto",
+                token = token,
+                usuario = new
+                {
+                    idUsuario = usuario.IdUsuario,
+                    nombreUsuario = usuario.NombreUsuario,
+                    nombre = usuario.Nombre,
+                    apellido = usuario.Apellido
+                }
+            });
         }
+
         [HttpGet("protegido")]
         [Authorize]
         public IActionResult Protegido()

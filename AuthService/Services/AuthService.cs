@@ -12,7 +12,7 @@ namespace AuthService.Services
             _context = context;
         }
 
-        public bool ValidarUsuario(LoginDTO login)
+        public Models.Usuario? ValidarUsuario(LoginDTO login)
         {
             var usuario = _context.Usuarios
                 .FirstOrDefault(u =>
@@ -20,7 +20,7 @@ namespace AuthService.Services
                     u.PasswordHash == login.Password &&
                     u.Estado == "ACTIVO");
 
-            return usuario != null;
+            return usuario;
         }
     }
 }

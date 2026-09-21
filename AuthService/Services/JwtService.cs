@@ -7,7 +7,7 @@ namespace AuthService.Services
 {
     public class JwtService
     {
-        public string GenerarToken(string usuario)
+        public string GenerarToken(int idUsuario, string usuario)
         {
             var clave = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes("clave-secreta-depreciacion-2026!!")
@@ -20,6 +20,7 @@ namespace AuthService.Services
 
             var claims = new[]
             {
+                new Claim(ClaimTypes.NameIdentifier, idUsuario.ToString()),
                 new Claim(ClaimTypes.Name, usuario)
             };
 
