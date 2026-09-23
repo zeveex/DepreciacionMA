@@ -1,12 +1,20 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Layout from "../components/Layout";
+
 import {
-    obtenerVehiculos,
-    crearVehiculo,
-    actualizarVehiculo,
-    eliminarVehiculo,
-    calcularDepreciacion
-} from "../services/vehiculosService";
-import "../styles/app.css";
+    obtenerActivos,
+    crearActivo,
+    actualizarActivo,
+    eliminarActivo
+} from "../services/activosService";
+
+import {
+    calcularDepreciacion,
+    generarHistorial,
+    obtenerHistorial,
+    generarReporte
+} from "../services/depreciacionService";
 
 // --- Iconos SVG ---
 const IconArrowLeft = () => (
@@ -16,80 +24,17 @@ const IconArrowLeft = () => (
     </svg>
 );
 
-const IconCar = ({ size = 22 }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M5 17h14M5 17a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm14 0a2 2 0 1 1 4 0 2 2 0 0 1-4 0z"/>
-        <path d="M3 17V11l2-5h14l2 5v6"/>
-        <path d="M5 11h14"/>
-    </svg>
-);
-
-const IconCalendar = () => (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-        <line x1="16" y1="2" x2="16" y2="6"/>
-        <line x1="8" y1="2" x2="8" y2="6"/>
-        <line x1="3" y1="10" x2="21" y2="10"/>
-    </svg>
-);
-
-const IconDollar = () => (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <line x1="12" y1="1" x2="12" y2="23"/>
-        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-    </svg>
-);
-
-const IconTag = () => (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
-        <line x1="7" y1="7" x2="7.01" y2="7"/>
-    </svg>
-);
-
 const IconCheck = () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
         <polyline points="20 6 9 17 4 12"/>
     </svg>
 );
 
 const IconAlert = () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="12" cy="12" r="10"/>
         <line x1="12" y1="8" x2="12" y2="12"/>
         <line x1="12" y1="16" x2="12.01" y2="16"/>
-    </svg>
-);
-
-const IconTrendDown = () => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/>
-        <polyline points="17 18 23 18 23 12"/>
-    </svg>
-);
-
-const IconEdit = () => (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-    </svg>
-);
-
-const IconTrash = () => (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <polyline points="3 6 5 6 21 6"/>
-        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-        <line x1="10" y1="11" x2="10" y2="17"/>
-        <line x1="14" y1="11" x2="14" y2="17"/>
-    </svg>
-);
-
-const IconFile = () => (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-        <polyline points="14 2 14 8 20 8"/>
-        <line x1="16" y1="13" x2="8" y2="13"/>
-        <line x1="16" y1="17" x2="8" y2="17"/>
     </svg>
 );
 
@@ -107,17 +52,50 @@ const IconCalculator = () => (
     </svg>
 );
 
-const IconEye = () => (
+const IconFile = () => (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-        <circle cx="12" cy="12" r="3"/>
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="16" y1="13" x2="8" y2="13"/>
+        <line x1="16" y1="17" x2="8" y2="17"/>
     </svg>
 );
 
-function Vehiculos() {
+// Tipos de activos de Vehículos (categoría 3)
+const TIPOS_VEHICULOS = {
+    7: "Moto",
+    8: "Camioneta",
+    9: "Automóvil",
+};
 
-    const [vehiculos, setVehiculos] = useState([]);
+function InfoItem({ label, value, highlight }) {
+    return (
+        <div>
+            <div style={{
+                fontSize: 11,
+                textTransform: "uppercase",
+                letterSpacing: 0.7,
+                color: "#64748b",
+                fontWeight: 600,
+                marginBottom: 4,
+            }}>
+                {label}
+            </div>
+            <div style={{
+                color: highlight ? "#4ade80" : "#fff",
+                fontSize: 14,
+                fontWeight: highlight ? 700 : 500,
+            }}>
+                {value}
+            </div>
+        </div>
+    );
+}
 
+export default function Vehiculos() {
+    const navigate = useNavigate();
+
+    const [activos, setActivos] = useState([]);
     const [formulario, setFormulario] = useState({
         descripcion: "",
         idTipo: "",
@@ -125,7 +103,7 @@ function Vehiculos() {
         valorCompra: ""
     });
 
-    const [vehiculoSeleccionado, setVehiculoSeleccionado] = useState(null);
+    const [activoSeleccionado, setActivoSeleccionado] = useState(null);
     const [fechaCalculo, setFechaCalculo] = useState("");
     const [depreciacion, setDepreciacion] = useState([]);
     const [datosDepreciacion, setDatosDepreciacion] = useState(null);
@@ -135,13 +113,17 @@ function Vehiculos() {
     const [tipoMensaje, setTipoMensaje] = useState("");
 
     useEffect(() => {
-        cargarVehiculos();
+        cargarActivos();
     }, []);
 
-    const cargarVehiculos = async () => {
+    // ============ CARGAR ============
+    const cargarActivos = async () => {
         try {
-            const respuesta = await obtenerVehiculos();
-            setVehiculos(respuesta.data);
+            const respuesta = await obtenerActivos();
+            const filtrados = respuesta.data.filter((a) =>
+                Object.keys(TIPOS_VEHICULOS).includes(String(a.idTipo))
+            );
+            setActivos(filtrados);
         } catch (error) {
             console.error(error);
             mostrarMensaje("No se pudieron cargar los vehículos", "error");
@@ -155,13 +137,11 @@ function Vehiculos() {
     };
 
     const manejarCambio = (e) => {
-        setFormulario({
-            ...formulario,
-            [e.target.name]: e.target.value
-        });
+        setFormulario({ ...formulario, [e.target.name]: e.target.value });
     };
 
-    const registrarVehiculo = async (e) => {
+    // ============ CREAR / ACTUALIZAR ============
+    const registrarActivo = async (e) => {
         e.preventDefault();
 
         try {
@@ -173,33 +153,83 @@ function Vehiculos() {
             };
 
             if (editando) {
-                await actualizarVehiculo(
-                    vehiculoSeleccionado.idActivo,
-                    datos
-                );
+                await actualizarActivo(activoSeleccionado.idActivo, datos);
                 mostrarMensaje("Vehículo actualizado correctamente", "exito");
             } else {
-                await crearVehiculo(datos);
+                await crearActivo(datos);
                 mostrarMensaje("Vehículo registrado correctamente", "exito");
             }
 
             limpiarFormulario();
-            cargarVehiculos();
+            cargarActivos();
 
         } catch (error) {
             console.error(error);
             mostrarMensaje(
-                error.response?.data || "No se pudo guardar el vehículo",
+                error.response?.data?.mensaje || "No se pudo guardar el vehículo",
                 "error"
             );
         }
     };
 
-    const seleccionarVehiculo = (vehiculo) => {
-        setVehiculoSeleccionado(vehiculo);
+    // ============ EDITAR ============
+    const editarActivo = (a) => {
+        setFormulario({
+            descripcion: a.descripcion,
+            idTipo: a.idTipo,
+            fechaCompra: a.fechaCompra.substring(0, 10),
+            valorCompra: a.valorCompra
+        });
+        setActivoSeleccionado(a);
+        setEditando(true);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    // ============ ELIMINAR ============
+    const borrarActivo = async (id) => {
+        if (!window.confirm("¿Desea eliminar este vehículo?")) return;
+
+        try {
+            await eliminarActivo(id);
+
+            if (activoSeleccionado?.idActivo === id) {
+                setActivoSeleccionado(null);
+                setDepreciacion([]);
+                setDatosDepreciacion(null);
+            }
+
+            mostrarMensaje("Vehículo eliminado correctamente", "exito");
+            cargarActivos();
+
+        } catch (error) {
+            console.error(error);
+            mostrarMensaje(
+                error.response?.data?.mensaje || "No se pudo eliminar el vehículo",
+                "error"
+            );
+        }
+    };
+
+    // ============ VER → HISTORIAL AUTOMÁTICO ============
+    const seleccionarActivo = async (activo) => {
+        setActivoSeleccionado(activo);
         setFechaCalculo("");
-        setDepreciacion([]);
         setDatosDepreciacion(null);
+        setDepreciacion([]);
+
+        try {
+            await generarHistorial(activo.idActivo);
+
+            const respuesta = await obtenerHistorial(activo.idActivo);
+
+            setDepreciacion(respuesta.data);
+        } catch (error) {
+            console.error(error);
+            mostrarMensaje(
+                error.response?.data?.mensaje || "No se pudo cargar el historial",
+                "error"
+            );
+        }
 
         window.scrollTo({
             top: document.body.scrollHeight,
@@ -207,153 +237,123 @@ function Vehiculos() {
         });
     };
 
-    const editarVehiculo = (vehiculo) => {
-        setFormulario({
-            descripcion: vehiculo.descripcion,
-            idTipo: vehiculo.idTipo,
-            fechaCompra: vehiculo.fechaCompra.substring(0, 10),
-            valorCompra: vehiculo.valorCompra
-        });
-
-        setVehiculoSeleccionado(vehiculo);
-        setEditando(true);
-
-        window.scrollTo({
-            top: 0,
-            behavior: "smooth"
-        });
-    };
-
-    const borrarVehiculo = async (id) => {
-        if (!window.confirm("¿Desea eliminar este vehículo?")) return;
-
-        try {
-            await eliminarVehiculo(id);
-
-            if (vehiculoSeleccionado && vehiculoSeleccionado.idActivo === id) {
-                setVehiculoSeleccionado(null);
-                setDepreciacion([]);
-                setDatosDepreciacion(null);
-            }
-
-            mostrarMensaje("Vehículo eliminado correctamente", "exito");
-            cargarVehiculos();
-
-        } catch (error) {
-            console.error(error);
-            mostrarMensaje(
-                error.response?.data || "No se pudo eliminar el vehículo",
-                "error"
-            );
-        }
-    };
-
+    // ============ CALCULAR POR FECHA ============
     const calcular = async () => {
-        if (!vehiculoSeleccionado) {
-            mostrarMensaje("Seleccione un vehículo", "error");
-            return;
+        if (!activoSeleccionado) {
+            return mostrarMensaje("Seleccione un vehículo", "error");
         }
-
         if (!fechaCalculo) {
-            mostrarMensaje("Seleccione una fecha de cálculo", "error");
-            return;
+            return mostrarMensaje("Seleccione una fecha de cálculo", "error");
         }
 
         try {
             const respuesta = await calcularDepreciacion({
-                idActivo: vehiculoSeleccionado.idActivo,
+                idActivo: activoSeleccionado.idActivo,
                 fechaCalculo: fechaCalculo
             });
 
             setDatosDepreciacion(respuesta.data);
-            setDepreciacion(respuesta.data.depreciacion);
             setMensaje("");
-
         } catch (error) {
             console.error(error);
             mostrarMensaje(
-                error.response?.data || "No se pudo calcular la depreciación",
+                error.response?.data?.mensaje ||
+                    "No se pudo calcular la depreciación",
                 "error"
             );
-            setDepreciacion([]);
             setDatosDepreciacion(null);
         }
     };
 
+    // ============ DESCARGAR REPORTE PDF ============
+    const descargarReporte = async () => {
+        if (!activoSeleccionado) {
+            return mostrarMensaje("Seleccione un vehículo", "error");
+        }
+
+        try {
+            const respuesta = await generarReporte(activoSeleccionado.idActivo);
+
+            const archivo = new Blob(
+                [respuesta.data],
+                { type: "application/pdf" }
+            );
+
+            const url = window.URL.createObjectURL(archivo);
+
+            const enlace = document.createElement("a");
+            enlace.href = url;
+            enlace.download = `Reporte_Depreciacion_${activoSeleccionado.idActivo}.pdf`;
+
+            document.body.appendChild(enlace);
+            enlace.click();
+
+            enlace.remove();
+            window.URL.revokeObjectURL(url);
+
+        } catch (error) {
+            console.error(error);
+            mostrarMensaje(
+                error.response?.data?.mensaje ||
+                    "No se pudo generar el reporte",
+                "error"
+            );
+        }
+    };
+
+    // ============ LIMPIAR ============
     const limpiarFormulario = () => {
-        setFormulario({
-            descripcion: "",
-            idTipo: "",
-            fechaCompra: "",
-            valorCompra: ""
-        });
+        setFormulario({ descripcion: "", idTipo: "", fechaCompra: "", valorCompra: "" });
         setEditando(false);
-        setVehiculoSeleccionado(null);
+        setActivoSeleccionado(null);
         setFechaCalculo("");
         setDepreciacion([]);
         setDatosDepreciacion(null);
     };
 
-    const nombreTipo = (idTipo) => {
-        const tipos = {
-            7: "Moto",
-            8: "Camioneta",
-            9: "Automóvil"
-        };
-        return tipos[idTipo] || "Desconocido";
-    };
+    // ============ UTILS ============
+    const nombreTipo = (idTipo) => TIPOS_VEHICULOS[idTipo] || "Desconocido";
 
     const formatoFecha = (fecha) => {
+        if (!fecha) return "-";
         return new Date(fecha).toLocaleDateString("es-EC");
     };
 
-    const formatoMoneda = (valor) => {
-        return Number(valor).toLocaleString("es-EC", {
+    const formatoMoneda = (valor) =>
+        Number(valor).toLocaleString("es-EC", {
             style: "currency",
             currency: "USD"
         });
-    };
 
+    // ============ RENDER ============
     return (
-        <div className="vehiculos-page">
-
-            {/* --- Header --- */}
-            <div className="vehiculos-header">
+        <Layout>
+            <div className="page-header">
                 <div>
-                    <span className="pagina-etiqueta">ACTIVOS</span>
                     <h1>Vehículos</h1>
-                    <div className="linea-azul"></div>
-                    <p>Registra, edita y calcula la depreciación de los vehículos.</p>
+                    <p className="subtitle">
+                        Registra, edita y calcula la depreciación de vehículos
+                    </p>
                 </div>
-
-                <button
-                    className="btn-volver"
-                    onClick={() => window.history.back()}
-                >
-                    <IconArrowLeft /> Volver
-                </button>
+                <div className="actions">
+                    <button className="btn btn-secondary" onClick={() => navigate('/activos')}>
+                        <IconArrowLeft /> Volver a Activos
+                    </button>
+                </div>
             </div>
 
+            <div className="form-grid-dos">
+                <div className="card">
+                    <h2 className="card-title">
+                        {editando ? "Editar vehículo" : "Registrar vehículo"}
+                    </h2>
+                    <p className="card-subtitle">
+                        {editando ? "Modifica los datos del vehículo" : "Ingresa los datos del vehículo"}
+                    </p>
 
-            {/* --- Formulario + Info --- */}
-            <div className="vehiculos-contenido">
-
-                <div className="formulario-card">
-
-                    <div className="card-titulo">
-                        <div className="card-titulo-icono">
-                            <IconCar />
-                        </div>
-                        <div>
-                            <h2>{editando ? "Editar vehículo" : "Registrar vehículo"}</h2>
-                            <p>{editando ? "Modifica los datos del activo" : "Ingresa los datos del activo"}</p>
-                        </div>
-                    </div>
-
-                    <form onSubmit={registrarVehiculo}>
-
-                        <div className="campo">
-                            <label><IconTag /> Descripción</label>
+                    <form onSubmit={registrarActivo}>
+                        <div className="form-field">
+                            <label>Descripción</label>
                             <input
                                 type="text"
                                 name="descripcion"
@@ -364,7 +364,7 @@ function Vehiculos() {
                             />
                         </div>
 
-                        <div className="campo">
+                        <div className="form-field">
                             <label>Tipo de vehículo</label>
                             <select
                                 name="idTipo"
@@ -373,15 +373,15 @@ function Vehiculos() {
                                 required
                             >
                                 <option value="">Seleccionar tipo</option>
-                                <option value="7">Moto</option>
-                                <option value="8">Camioneta</option>
-                                <option value="9">Automóvil</option>
+                                {Object.entries(TIPOS_VEHICULOS).map(([id, nombre]) => (
+                                    <option key={id} value={id}>{nombre}</option>
+                                ))}
                             </select>
                         </div>
 
-                        <div className="campos-dos">
-                            <div className="campo">
-                                <label><IconCalendar /> Fecha de compra</label>
+                        <div className="form-grid">
+                            <div className="form-field">
+                                <label>Fecha de compra</label>
                                 <input
                                     type="date"
                                     name="fechaCompra"
@@ -391,8 +391,8 @@ function Vehiculos() {
                                 />
                             </div>
 
-                            <div className="campo">
-                                <label><IconDollar /> Valor de compra</label>
+                            <div className="form-field">
+                                <label>Valor de compra</label>
                                 <input
                                     type="number"
                                     name="valorCompra"
@@ -406,8 +406,15 @@ function Vehiculos() {
                             </div>
                         </div>
 
-                        <div className="botones-formulario">
-                            <button className="btn-registrar" type="submit">
+                        {mensaje && (
+                            <div className={`alert ${tipoMensaje === "error" ? "alert-error" : "alert-success"}`}>
+                                {tipoMensaje === "error" ? <IconAlert /> : <IconCheck />}
+                                {mensaje}
+                            </div>
+                        )}
+
+                        <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
+                            <button className="btn btn-primary" type="submit">
                                 <IconCheck />
                                 {editando ? "Actualizar vehículo" : "Registrar vehículo"}
                             </button>
@@ -415,255 +422,273 @@ function Vehiculos() {
                             {editando && (
                                 <button
                                     type="button"
-                                    className="btn-cancelar"
+                                    className="btn btn-secondary"
                                     onClick={limpiarFormulario}
                                 >
                                     Cancelar
                                 </button>
                             )}
                         </div>
-
                     </form>
-
-                    {mensaje && (
-                        <div className={`mensaje ${tipoMensaje}`}>
-                            {tipoMensaje === "exito" ? <IconCheck /> : <IconAlert />}
-                            {mensaje}
-                        </div>
-                    )}
-
                 </div>
 
-
-                <div className="informacion-card">
-                    <div className="info-header">
-                        <div className="info-icono">
-                            <IconTrendDown />
-                        </div>
-                        <span className="info-etiqueta">DEPRECIACIÓN</span>
-                    </div>
-
-                    <h2>Vehículos</h2>
-                    <p>
-                        La depreciación se calculará automáticamente
-                        utilizando los datos registrados del vehículo.
+                <div className="card">
+                    <h2 className="card-title">Depreciación</h2>
+                    <p className="card-subtitle">
+                        Se calcula automáticamente con los datos del vehículo
                     </p>
 
-                    <div className="info-dato">
-                        <span>Vida útil</span>
-                        <strong>5 años</strong>
+                    <div className="info-row">
+                        <span className="label">Vida útil</span>
+                        <span className="value">5 años</span>
                     </div>
-                    <div className="info-dato">
-                        <span>Valor residual</span>
-                        <strong>10%</strong>
+                    <div className="info-row">
+                        <span className="label">Valor residual</span>
+                        <span className="value">10%</span>
                     </div>
-                    <div className="info-dato">
-                        <span>Método</span>
-                        <strong>Línea recta</strong>
+                    <div className="info-row">
+                        <span className="label">Método</span>
+                        <span className="value">Línea recta</span>
                     </div>
                 </div>
-
             </div>
 
+            <div className="card">
+                <h2 className="card-title">
+                    Vehículos registrados ({activos.length})
+                </h2>
+                <p className="card-subtitle">Lista de vehículos en el sistema</p>
 
-            {/* --- Lista de Vehículos --- */}
-            <div className="lista-vehiculos">
-
-                <div className="lista-header">
-                    <div>
-                        <span className="pagina-etiqueta">REGISTROS</span>
-                        <h2>Vehículos registrados</h2>
+                {activos.length === 0 ? (
+                    <div className="empty-state">
+                        <p>No hay vehículos registrados aún</p>
+                        <span>Usa el formulario de arriba para agregar el primero</span>
                     </div>
-                    <span className="contador">
-                        {vehiculos.length} {vehiculos.length === 1 ? "registrado" : "registrados"}
-                    </span>
-                </div>
-
-                <div className="tabla-contenedor">
-
-                    {vehiculos.length === 0 ? (
-                        <div className="tabla-vacia">
-                            <IconCar size={48} />
-                            <p>No hay vehículos registrados aún.</p>
-                            <span>Usa el formulario de arriba para agregar el primero.</span>
-                        </div>
-                    ) : (
-                        <table className="tabla-vehiculos">
+                ) : (
+                    <div className="table-wrapper">
+                        <table className="data-table">
                             <thead>
                                 <tr>
                                     <th>ID</th>
                                     <th>Descripción</th>
                                     <th>Tipo</th>
-                                    <th>Fecha de compra</th>
+                                    <th>Fecha compra</th>
                                     <th>Valor</th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {vehiculos.map((vehiculo) => (
-                                    <tr key={vehiculo.idActivo}>
-                                        <td className="col-id">#{vehiculo.idActivo}</td>
-                                        <td className="col-descripcion">{vehiculo.descripcion}</td>
+                                {activos.map((a) => (
+                                    <tr key={a.idActivo}>
+                                        <td>#{a.idActivo}</td>
+                                        <td style={{ color: "#fff", fontWeight: 500 }}>
+                                            {a.descripcion}
+                                        </td>
                                         <td>
-                                            <span className="badge-tipo">
-                                                {nombreTipo(vehiculo.idTipo)}
+                                            <span className="badge">
+                                                {nombreTipo(a.idTipo)}
                                             </span>
                                         </td>
-                                        <td className="col-fecha">
-                                            {formatoFecha(vehiculo.fechaCompra)}
+                                        <td>{formatoFecha(a.fechaCompra)}</td>
+                                        <td style={{ color: "#4ade80", fontWeight: 700 }}>
+                                            {formatoMoneda(a.valorCompra)}
                                         </td>
-                                        <td className="col-valor">
-                                            {formatoMoneda(vehiculo.valorCompra)}
-                                        </td>
-                                        <td className="acciones">
-                                            <button
-                                                className="btn-ver"
-                                                onClick={() => seleccionarVehiculo(vehiculo)}
-                                            >
-                                                <IconEye /> Ver
-                                            </button>
-                                            <button
-                                                className="btn-editar"
-                                                onClick={() => editarVehiculo(vehiculo)}
-                                            >
-                                                <IconEdit /> Editar
-                                            </button>
-                                            <button
-                                                className="btn-eliminar"
-                                                onClick={() => borrarVehiculo(vehiculo.idActivo)}
-                                            >
-                                                <IconTrash /> Eliminar
-                                            </button>
+                                        <td>
+                                            <div style={{ display: "flex", gap: 6 }}>
+                                                <button
+                                                    className="btn btn-secondary btn-sm"
+                                                    onClick={() => seleccionarActivo(a)}
+                                                >
+                                                    Ver
+                                                </button>
+                                                <button
+                                                    className="btn btn-secondary btn-sm"
+                                                    onClick={() => editarActivo(a)}
+                                                >
+                                                    Editar
+                                                </button>
+                                                <button
+                                                    className="btn btn-danger btn-sm"
+                                                    onClick={() => borrarActivo(a.idActivo)}
+                                                >
+                                                    Eliminar
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
-                    )}
-
-                </div>
+                    </div>
+                )}
             </div>
 
+            {activoSeleccionado && (
+                <div className="card">
+                    <h2 className="card-title">Depreciación del vehículo</h2>
+                    <p className="card-subtitle">
+                        Historial anual y consulta por fecha
+                    </p>
 
-            {/* --- Depreciación --- */}
-            {vehiculoSeleccionado && (
-                <div className="depreciacion-card">
-
-                    <div className="card-titulo">
-                        <div className="card-titulo-icono">
-                            <IconTrendDown />
-                        </div>
-                        <div>
-                            <h2>Depreciación del vehículo</h2>
-                            <p>Cálculo del valor actual según el método de línea recta</p>
-                        </div>
+                    <div className="form-grid" style={{ marginBottom: 20 }}>
+                        <InfoItem label="Vehículo" value={activoSeleccionado.descripcion} />
+                        <InfoItem label="Tipo" value={nombreTipo(activoSeleccionado.idTipo)} />
+                        <InfoItem label="Fecha compra" value={formatoFecha(activoSeleccionado.fechaCompra)} />
+                        <InfoItem label="Valor compra" value={formatoMoneda(activoSeleccionado.valorCompra)} highlight />
                     </div>
 
-                    <div className="datos-vehiculo">
-                        <div>
-                            <strong>Vehículo</strong>
-                            <span>{vehiculoSeleccionado.descripcion}</span>
-                        </div>
-                        <div>
-                            <strong>Tipo</strong>
-                            <span>{nombreTipo(vehiculoSeleccionado.idTipo)}</span>
-                        </div>
-                        <div>
-                            <strong>Fecha de compra</strong>
-                            <span>{formatoFecha(vehiculoSeleccionado.fechaCompra)}</span>
-                        </div>
-                        <div>
-                            <strong>Valor de compra</strong>
-                            <span>{formatoMoneda(vehiculoSeleccionado.valorCompra)}</span>
-                        </div>
-                    </div>
+                    {/* HISTORIAL ANUAL */}
+                    {depreciacion.length > 0 && (
+                        <div style={{ marginTop: 28 }}>
+                            <h3 style={{
+                                fontSize: 14,
+                                fontWeight: 700,
+                                color: "#60a5fa",
+                                textTransform: "uppercase",
+                                letterSpacing: 1,
+                                marginBottom: 16
+                            }}>
+                                Historial anual de depreciación
+                            </h3>
 
-                    <div className="calculo">
-                        <div className="campo">
-                            <label><IconCalendar /> Fecha de cálculo</label>
-                            <input
-                                type="date"
-                                value={fechaCalculo}
-                                min={vehiculoSeleccionado.fechaCompra.substring(0, 10)}
-                                onChange={(e) => setFechaCalculo(e.target.value)}
-                            />
-                        </div>
-
-                        <button className="btn-registrar" onClick={calcular}>
-                            <IconCalculator /> Calcular depreciación
-                        </button>
-                    </div>
-
-                    {datosDepreciacion && (
-                        <>
-                            <div className="resumen-depreciacion">
-                                <div>
-                                    <strong>Categoría</strong>
-                                    <span>{datosDepreciacion.categoria.nombreCategoria}</span>
-                                </div>
-                                <div>
-                                    <strong>Vida útil</strong>
-                                    <span>{datosDepreciacion.categoria.vidaUtilAnios} años</span>
-                                </div>
-                                <div>
-                                    <strong>Valor residual</strong>
-                                    <span>{datosDepreciacion.categoria.porcentajeValorResidual}%</span>
-                                </div>
+                            <div className="table-wrapper">
+                                <table className="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Año</th>
+                                            <th>Fecha corte</th>
+                                            <th>Meses</th>
+                                            <th>Valor inicial</th>
+                                            <th>Dep. período</th>
+                                            <th>Dep. acumulada</th>
+                                            <th>Valor actual</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {depreciacion.map((fila) => (
+                                            <tr key={fila.anioDep}>
+                                                <td style={{ color: "#60a5fa", fontWeight: 700 }}>
+                                                    {fila.anioDep}
+                                                </td>
+                                                <td>{formatoFecha(fila.fechaCorte)}</td>
+                                                <td>{fila.mesesDepreciados}</td>
+                                                <td>{formatoMoneda(fila.valorInicial)}</td>
+                                                <td style={{ color: "#60a5fa", fontWeight: 600 }}>
+                                                    {formatoMoneda(fila.depreciacionPeriodo)}
+                                                </td>
+                                                <td>{formatoMoneda(fila.depreciacionAcumulada)}</td>
+                                                <td style={{ color: "#4ade80", fontWeight: 700 }}>
+                                                    {formatoMoneda(fila.valorActual)}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
                             </div>
 
-                            {depreciacion.length > 0 ? (
-                                <>
-                                    <div className="tabla-contenedor">
-                                        <table className="tabla-vehiculos">
-                                            <thead>
-                                                <tr>
-                                                    <th>Período</th>
-                                                    <th>Fecha</th>
-                                                    <th>Meses</th>
-                                                    <th>Valor inicial</th>
-                                                    <th>Dep. período</th>
-                                                    <th>Dep. acumulada</th>
-                                                    <th>Valor actual</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {depreciacion.map((fila) => (
-                                                    <tr key={fila.periodo}>
-                                                        <td className="col-id">{fila.periodo}</td>
-                                                        <td className="col-fecha">{formatoFecha(fila.fecha)}</td>
-                                                        <td>{fila.mesesDepreciados}</td>
-                                                        <td>{formatoMoneda(fila.valorInicial)}</td>
-                                                        <td>{formatoMoneda(fila.depreciacionPeriodo)}</td>
-                                                        <td>{formatoMoneda(fila.depreciacionAcumulada)}</td>
-                                                        <td className="col-valor">{formatoMoneda(fila.valorActual)}</td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-
-                                    <div className="reporte">
-                                        <button
-                                            className="btn-reporte"
-                                            onClick={() => alert("El reporte PDF se conectará en el siguiente paso.")}
-                                        >
-                                            <IconFile /> Generar reporte PDF
-                                        </button>
-                                    </div>
-                                </>
-                            ) : (
-                                <div className="sin-depreciacion">
-                                    No existen períodos de depreciación para la fecha seleccionada.
-                                </div>
-                            )}
-                        </>
+                            <div style={{
+                                display: "flex",
+                                justifyContent: "flex-end",
+                                marginTop: 20
+                            }}>
+                                <button
+                                    className="btn btn-secondary"
+                                    onClick={descargarReporte}
+                                >
+                                    <IconFile /> Generar reporte PDF
+                                </button>
+                            </div>
+                        </div>
                     )}
 
+                    {/* CONSULTA POR FECHA */}
+                    <div style={{ marginTop: 32 }}>
+                        <h3 style={{
+                            fontSize: 14,
+                            fontWeight: 700,
+                            color: "#60a5fa",
+                            textTransform: "uppercase",
+                            letterSpacing: 1,
+                            marginBottom: 16
+                        }}>
+                            Consultar depreciación por fecha
+                        </h3>
+
+                        <div className="form-grid">
+                            <div className="form-field">
+                                <label>Fecha de cálculo</label>
+                                <input
+                                    type="date"
+                                    value={fechaCalculo}
+                                    min={activoSeleccionado.fechaCompra.substring(0, 10)}
+                                    onChange={(e) => setFechaCalculo(e.target.value)}
+                                />
+                            </div>
+
+                            <div style={{ display: "flex", alignItems: "flex-end" }}>
+                                <button
+                                    className="btn btn-primary"
+                                    onClick={calcular}
+                                >
+                                    <IconCalculator />
+                                    Calcular depreciación
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* RESULTADO POR FECHA */}
+                    {datosDepreciacion && (
+                        <div style={{ marginTop: 24 }}>
+                            <h3 style={{
+                                fontSize: 14,
+                                fontWeight: 700,
+                                color: "#60a5fa",
+                                textTransform: "uppercase",
+                                letterSpacing: 1,
+                                marginBottom: 16
+                            }}>
+                                Resultado para {formatoFecha(fechaCalculo)}
+                            </h3>
+
+                            <div className="form-grid">
+                                <InfoItem
+                                    label="Categoría"
+                                    value={datosDepreciacion.nombreCategoria}
+                                />
+                                <InfoItem
+                                    label="Vida útil"
+                                    value={`${datosDepreciacion.vidaUtilAnios} años`}
+                                />
+                                <InfoItem
+                                    label="Valor residual"
+                                    value={`${datosDepreciacion.porcentajeValorResidual}%`}
+                                />
+                                <InfoItem
+                                    label="Valor compra"
+                                    value={formatoMoneda(datosDepreciacion.valorCompra)}
+                                />
+                                <InfoItem
+                                    label="Depreciación acumulada"
+                                    value={formatoMoneda(datosDepreciacion.depreciacionAcumulada)}
+                                />
+                                <InfoItem
+                                    label="Valor actual"
+                                    value={formatoMoneda(datosDepreciacion.valorActual)}
+                                    highlight
+                                />
+                            </div>
+
+                            {datosDepreciacion.llegoAlLimite && (
+                                <div className="alert alert-info" style={{ marginTop: 16 }}>
+                                    El activo alcanzó su valor residual del{" "}
+                                    {datosDepreciacion.porcentajeValorResidual}%
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
             )}
-
-        </div>
+        </Layout>
     );
 }
-
-export default Vehiculos;

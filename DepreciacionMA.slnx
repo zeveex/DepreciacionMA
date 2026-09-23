@@ -1,8 +1,14 @@
 <Solution>
-  <Project Path="AuthService/AuthService.csproj" />
-  <Project Path="EdificiosService/EdificiosService.csproj" />
-  <Project Path="ReportService/ReportService.csproj" />
-  <Project Path="Shared/Shared.csproj" />
-  <Project Path="TecnologiaService/TecnologiaService.csproj" />
-  <Project Path="VehiculosService/VehiculosService.csproj" />
+  <Folder Name="/Backend/" />
+  <Folder Name="/Backend/src/">
+    <Project Path="Backend/src/ActivosService/ActivosService.csproj" />
+    <Project Path="Backend/src/AuthService/AuthService.csproj" />
+    <Project Path="Backend/src/DepreciacionService/DepreciacionService.csproj" />
+  </Folder>
+  <Folder Name="/Backend/src/Gateway/">
+    <Project Path="Backend/src/Gateway/Gateway.Api/Gateway.Api.csproj" />
+  </Folder>
+  <Folder Name="/Shared/">
+    <Project Path="Shared/Shared.Contracts/Shared.Contracts.csproj" />
+  </Folder>
 </Solution>

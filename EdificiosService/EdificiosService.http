@@ -1,6 +1,0 @@
-@EdificiosService_HostAddress = http://localhost:5185
-
-GET {{EdificiosService_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

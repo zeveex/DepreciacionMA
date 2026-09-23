@@ -1,208 +1,134 @@
-import { useNavigate } from "react-router-dom";
-import "../styles/app.css";
-import tecnologia from "../assets/tecnologia.png";
-import vehiculos from "../assets/vehiculos.png";
-import edificios from "../assets/edificios.png";
-// --- Iconos SVG Profesionales ---
-const IconHome = () => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-        <polyline points="9 22 9 12 15 12 15 22"/>
-    </svg>
-);
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Layout from '../components/Layout';
+import axiosClient from '../api/axiosClient';
+import { useAuth } from '../context/AuthContext';
 
-const IconBox = () => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-        <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-        <line x1="12" y1="22.08" x2="12" y2="12"/>
-    </svg>
-);
+export default function DashboardPage() {
+    const navigate = useNavigate();
+    const { usuario } = useAuth();
+    const [activos, setActivos] = useState([]);
+    const [cargando, setCargando] = useState(true);
 
-const IconTrendDown = () => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/>
-        <polyline points="17 18 23 18 23 12"/>
-    </svg>
-);
+    const datosUsuario = JSON.parse(localStorage.getItem('usuario') || 'null');
+    const nombreCompleto = `${datosUsuario?.nombre || ''} ${datosUsuario?.apellido || ''}`.trim() || usuario || 'Usuario';
 
-const IconChart = () => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <line x1="18" y1="20" x2="18" y2="10"/>
-        <line x1="12" y1="20" x2="12" y2="4"/>
-        <line x1="6" y1="20" x2="6" y2="14"/>
-    </svg>
-);
+    useEffect(() => {
+        cargarActivos();
+    }, []);
 
-const IconLogout = () => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-        <polyline points="16 17 21 12 16 7"/>
-        <line x1="21" y1="12" x2="9" y2="12"/>
-    </svg>
-);
+    const cargarActivos = async () => {
+        try {
+            const res = await axiosClient.get('/activos');
+            setActivos(res.data);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setCargando(false);
+        }
+    };
 
-const IconLaptop = () => (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0l1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16"/>
-    </svg>
-);
+    const totalActivos = activos.length;
+    const totalValor = activos.reduce((s, a) => s + Number(a.valorCompra || 0), 0);
+    const totalTecnologia = activos.filter(a => (a.nombreCategoria || '').toLowerCase().includes('tecnolog')).length;
+    const totalVehiculos = activos.filter(a => (a.nombreCategoria || '').toLowerCase().includes('veh')).length;
+    const totalEdificios = activos.filter(a => (a.nombreCategoria || '').toLowerCase().includes('edif')).length;
 
-const IconCar = () => (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M5 17h14M5 17a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm14 0a2 2 0 1 1 4 0 2 2 0 0 1-4 0z"/>
-        <path d="M3 17V11l2-5h14l2 5v6"/>
-        <path d="M5 11h14"/>
-    </svg>
-);
-
-const IconBuilding = () => (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="4" y="2" width="16" height="20" rx="2"/>
-        <line x1="9" y1="6" x2="9" y2="6.01"/>
-        <line x1="15" y1="6" x2="15" y2="6.01"/>
-        <line x1="9" y1="10" x2="9" y2="10.01"/>
-        <line x1="15" y1="10" x2="15" y2="10.01"/>
-        <line x1="9" y1="14" x2="9" y2="14.01"/>
-        <line x1="15" y1="14" x2="15" y2="14.01"/>
-        <path d="M10 22v-4h4v4"/>
-    </svg>
-);
-
-const IconPlay = () => (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-        <polygon points="5 3 19 12 5 21 5 3"/>
-    </svg>
-);
-
-function Dashboard() {
-    const navegar = useNavigate();
-
-    const categorias = [
-        {
-            id: "tecnologia",
-            numero: "01",
-            Icono: IconLaptop,
-            titulo: "Tecnología",
-            descripcion: "Equipos de cómputo, servidores y dispositivos electrónicos que impulsan la operación diaria.",
-            articulos: ["Laptops", "Computadoras", "Servidores", "Impresoras", "Tablets"],
-            imagen: tecnologia,
-        },
-        {
-            id: "vehiculos",
-            numero: "02",
-            Icono: IconCar,
-            titulo: "Vehículos",
-            descripcion: "Flota de transporte que asegura la movilidad del personal y las operaciones logísticas.",
-            articulos: ["Camionetas", "Autos", "Motocicletas", "Camiones"],
-            imagen: vehiculos,
-        },
-        {
-            id: "edificios",
-            numero: "03",
-            Icono: IconBuilding,
-            titulo: "Edificios",
-            descripcion: "Inmuebles, oficinas y bodegas que conforman el patrimonio físico de la organización.",
-            articulos: ["Oficinas", "Bodegas", "Locales", "Terrenos"],
-            imagen: edificios,
-        },
-    ];
+    const formatoMoneda = (v) =>
+        Number(v).toLocaleString('es-EC', { style: 'currency', currency: 'USD' });
 
     return (
-        <div className="dashboard">
-
-            {/* --- Sidebar --- */}
-            <aside className="sidebar">
-                <div className="logo">
-                    <span className="logo-azul">DEPRE</span>CIACIÓN
+        <Layout>
+            <div className="page-header">
+                <div>
+                    <h1>Bienvenido, <span>{nombreCompleto}</span></h1>
+                    <p className="subtitle">
+                        Sistema de gestión de activos
+                    </p>
                 </div>
+            </div>
 
-                <div className="menu">
-                    <button className="activo">
-                        <IconHome /> Inicio
-                    </button>
-                    <button>
-                        <IconBox /> Activos
-                    </button>
-                    <button>
-                        <IconTrendDown /> Depreciación
-                    </button>
-                    <button>
-                        <IconChart /> Reportes
-                    </button>
-                    <button className="cerrar">
-                        <IconLogout /> Cerrar sesión
-                    </button>
+            <div className="stats-grid">
+                <div className="stat-card">
+                    <div className="stat-label">Activos registrados</div>
+                    <div className="stat-value">{cargando ? '—' : totalActivos}</div>
                 </div>
-            </aside>
-
-            {/* --- Contenido Principal --- */}
-            <main className="contenido">
-
-                {/* Header */}
-                <div className="encabezado">
-                    <div>
-                        <h1>Gestión de <span className="texto-azul">Activos</span></h1>
-                        <p className="subtitulo">Selecciona una categoría para gestionar sus artículos</p>
-                    </div>
-
-                    <div className="usuario">
-                        <div className="avatar">AD</div>
-                        <span>Administrador</span>
+                <div className="stat-card">
+                    <div className="stat-label">Valor total</div>
+                    <div className="stat-value primary">
+                        {cargando ? '—' : formatoMoneda(totalValor)}
                     </div>
                 </div>
-
-                {/* Título de sección */}
-                <div className="seccion-titulo">
-                    <h2>Seleccionar categoría</h2>
-                    <div className="linea-azul"></div>
+                <div className="stat-card">
+                    <div className="stat-label">Tecnología</div>
+                    <div className="stat-value">{cargando ? '—' : totalTecnologia}</div>
                 </div>
-
-                {/* Tarjetas de Categorías */}
-                <div className="tarjetas">
-                    {categorias.map((cat) => {
-                        const IconoComponente = cat.Icono;
-                        return (
-                            <div className="tarjeta" key={cat.id}>
-                                
-                                {/* Imagen */}
-                                <div className="tarjeta-imagen">
-                                    <img src={cat.imagen} alt={cat.titulo} />
-                                    <div className="tarjeta-overlay"></div>
-                                    <div className="tarjeta-numero">{cat.numero}</div>
-                                </div>
-
-                                {/* Contenido */}
-                                <div className="tarjeta-contenido">
-                                    <div className="tarjeta-header">
-                                        <span className="tarjeta-icono">
-                                            <IconoComponente />
-                                        </span>
-                                        <h3>{cat.titulo}</h3>
-                                    </div>
-                                    
-                                    <p className="tarjeta-descripcion">{cat.descripcion}</p>
-
-                                    <div className="tarjeta-articulos">
-                                        <span className="etiqueta">Artículos que entran aquí:</span>
-                                        <div className="tags">
-                                            {cat.articulos.map((art, i) => (
-                                                <span key={i} className="tag">{art}</span>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    <button className="btn-seleccionar" onClick={() => navegar(`/${cat.id}`)}>
-                                        <IconPlay /> Seleccionar
-                                    </button>
-                                </div>
-                            </div>
-                        );
-                    })}
+                <div className="stat-card">
+                    <div className="stat-label">Vehículos</div>
+                    <div className="stat-value">{cargando ? '—' : totalVehiculos}</div>
                 </div>
-            </main>
-        </div>
+                <div className="stat-card">
+                    <div className="stat-label">Edificios</div>
+                    <div className="stat-value">{cargando ? '—' : totalEdificios}</div>
+                </div>
+            </div>
+
+            {/* ✅ Solo queda el acceso a Activos */}
+            <div className="card">
+                <h2 className="card-title">Accesos rápidos</h2>
+                <p className="card-subtitle">Gestiona tus activos</p>
+
+                <div className="menu-grid">
+                    <button className="menu-card" onClick={() => navigate('/activos')}>
+                        <h3>Activos</h3>
+                        <p>Registra, edita y administra los activos de la empresa.</p>
+                        <span className="link">Ir a Activos →</span>
+                    </button>
+                </div>
+            </div>
+
+            <div className="card">
+                <h2 className="card-title">Activos recientes</h2>
+                <p className="card-subtitle">Últimos activos registrados en el sistema</p>
+
+                {cargando ? (
+                    <p style={{ color: '#64748b' }}>Cargando...</p>
+                ) : activos.length === 0 ? (
+                    <div className="empty-state">
+                        <p>No hay activos registrados</p>
+                        <span>Comienza registrando tu primer activo</span>
+                    </div>
+                ) : (
+                    <div className="table-wrapper">
+                        <table className="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Descripción</th>
+                                    <th>Categoría</th>
+                                    <th>Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {activos.slice(0, 5).map((a) => (
+                                    <tr key={a.idActivo}>
+                                        <td>#{a.idActivo}</td>
+                                        <td style={{ fontWeight: 500, color: '#0f172a' }}>
+                                            {a.descripcion}
+                                        </td>
+                                        <td>
+                                            <span className="badge">{a.nombreCategoria}</span>
+                                        </td>
+                                        <td style={{ fontWeight: 600, color: '#16a34a' }}>
+                                            {formatoMoneda(a.valorCompra)}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </div>
+        </Layout>
     );
 }
-
-export default Dashboard;

@@ -1,0 +1,229 @@
+/* ============================================
+   AUTH - Login / Register / Verify
+   Estilo oscuro azul
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+
+.auth-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #0a0f1c;
+    font-family: 'Poppins', sans-serif;
+    color: #fff;
+    padding: 20px;
+}
+
+.auth-card {
+    background: #0f172a;
+    border: 1px solid rgba(37, 99, 235, 0.25);
+    border-radius: 16px;
+    padding: 40px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #3b82f6, transparent);
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+.auth-header h1 {
+    font-size: 26px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+}
+
+.auth-header .subtitulo {
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+.auth-header .etiqueta {
+    display: inline-block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #60a5fa;
+    font-weight: 700;
+    margin-bottom: 12px;
+    background: rgba(59, 130, 246, 0.1);
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.auth-campo {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 18px;
+}
+
+.auth-campo label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #cbd5e1;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+}
+
+.auth-campo input {
+    background: #0a0f1c;
+    border: 1px solid rgba(37, 99, 235, 0.25);
+    color: #fff;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: 'Poppins', sans-serif;
+    outline: none;
+    transition: all 0.2s ease;
+    width: 100%;
+}
+
+.auth-campo input::placeholder {
+    color: #475569;
+}
+
+.auth-campo input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+}
+
+.auth-campos-dos {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.auth-btn {
+    width: 100%;
+    padding: 14px 20px;
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 8px;
+    text-decoration: none;
+}
+
+.auth-btn:hover:not(:disabled) {
+    background: #1d4ed8;
+    box-shadow: 0 0 25px rgba(59, 130, 246, 0.5);
+    transform: translateY(-2px);
+}
+
+.auth-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.auth-error {
+    color: #f87171;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    padding: 12px 16px;
+    border-radius: 10px;
+    margin-bottom: 14px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.auth-exito {
+    color: #4ade80;
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    padding: 12px 16px;
+    border-radius: 10px;
+    margin-bottom: 14px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.auth-link {
+    text-align: center;
+    margin-top: 20px;
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+.auth-link a {
+    color: #60a5fa;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.auth-link a:hover {
+    color: #93c5fd;
+    text-decoration: underline;
+}
+
+.auth-codigo-info {
+    text-align: center;
+    margin-bottom: 22px;
+}
+
+.auth-codigo-info p {
+    color: #94a3b8;
+    font-size: 13px;
+    margin-bottom: 6px;
+}
+
+.auth-codigo-info .correo {
+    color: #60a5fa;
+    font-weight: 600;
+    font-size: 14px;
+    word-break: break-all;
+}
+
+.auth-codigo-input {
+    text-align: center !important;
+    letter-spacing: 12px !important;
+    font-size: 28px !important;
+    font-weight: 700 !important;
+    padding: 14px 12px !important;
+}
+
+@media (max-width: 520px) {
+    .auth-card {
+        padding: 28px 22px;
+    }
+
+    .auth-header h1 {
+        font-size: 22px;
+    }
+
+    .auth-campos-dos {
+        grid-template-columns: 1fr;
+    }
+}
